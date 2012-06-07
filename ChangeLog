@@ -1,0 +1,97 @@
+caputils-0.7.8
+--------------
+
+	* fix: pfring_recv no longer blocks when reading additional frames while
+	       buffer is neither full or empty (i.e no packets can be read even
+	       if buffer isn't empty)
+	* add: capshow displays markers.
+	* fix: is_marker properly returns dst port instead of zero when passing
+	       zero as port.
+
+caputils-0.7.7
+--------------
+
+	* add: support for AND/OR in filter.
+	* add: hexdump_str() which is the same as old hexdump() but saves to a
+	       string instead of writing to FILE.
+	* add: progress report to capdump.
+	* fix: regression fix for capdump buffer size causing ethernet streams
+	       to fail for mtu > 4096.
+	* fix: regression fix. multiple streams caused the second stream to be
+	       ignored.
+
+caputils-0.7.6
+--------------
+
+	* fix: uint64_t printing in capdump.
+	* fix: fixing capfilter.
+	* add: stream_copy as wrapper for stream_write operating on caphead.
+	* add: caphead_t typedef
+	* change: added default address argument for stream_from_getopt
+	* change: capdump --marker now takes a port number.
+	* add: functions for working with timepico.
+	* add: improvements to capshow.
+	* fix: asorted bugs related to new buffering algorithm and capfiles.
+
+caputils-0.7.5
+--------------
+
+	* add: capshow (aliased as consumer-ls)
+	* add: --tp.port which matches either src or dst port.
+	* add: ability to set buffer size at initialization (use 0 for old
+	       default)
+	* change: the buffering behaviour has changed from only buffering when
+	          empty to continious buffering.
+	* change: `stream_t` is now a pointer and should be used in place of
+	          `struct stream*`. Existing applications should change from
+	          `stream_t*` to `stream_t`.
+	* fix: pkg-config file libcap_utils-0.7 now includes all libraries.
+	* add: stream_from_getopt and stream_print_info helpers.
+	* fix: large-file support for 32bit arch.
+	* fix: support for specifying pcap prefix to configure.
+	* add: capmarker: utility for sending a special marker packets.
+	* add: adding timeout to capdump which increases the responsiveness, e.g.
+	       when piping to another application. Defaults to 1000ms.
+	* fix: ethernet hproto was truncated to uint8_t.
+	* fix: select call in fill_buffer would not propagate errors properly so
+	       SIGINT would not be caught by user and thus stuck in infinite
+	       loop.
+
+caputils-0.7.4
+--------------
+
+	* change: logmsg using mutex to prevent interleaved output.
+	* change: pcap2cap only supports capfiles. Use mp instead.
+	* fix: issue in pcap2cap causing an inifinite loop over the same packet.
+	* add: including pcap2cap and cap2pcap for conversion to and from pcap.
+	* add: support for dropping groups and leading zeros in ethernet
+	       addresses, e.g. 01::01 is read as 01:00:00:00:00:01
+	* add: support for address prefix.
+	* fix: sigreturn is not well defined, uses SIG_IGN instead.
+	* fix: crash when file stream comment was null.
+
+caputils-0.7.3
+--------------
+
+	* add: filter_*_set functions
+	* add: stream_addr_str() to set a local filename easily.
+	* add: stream_addr_type() to get type in host order
+	* change: splitting filter structs so the packed and unpacked are
+	          different (reordered, removed cruft etc)
+	* change: logmsg writes tag centered.
+	* add: {,v}logmsg from libmarc is more suitable here.
+	* change: const correctness, fixing warnings.
+	* change: using size_t where appropriate (e.g. fread)
+	* change: made fields in struct stream unsigned.
+	* fix: h_proto is 2 bytes.
+	* fix: minor build-system fixes, mostly related to make dist.
+	* change: adding a third library (libcap_stream) which deals only with
+	          the stream. libcap_utils is utility functions only.
+	* change: rename ethaton.c to utils.c
+	* change: Moving stream_addr_t functions to a new source file: address.c
+	* change: Renamed struct destination_t to stream_addr_t
+	* change: Renamed {create,open,close}stream to stream_{create,open,close}
+	* fix: Fixed capdump.
+	* change: more man-pages.
+	* change: stream_read takes cap_head pointer instead of char-buffer.
+	* fix: Fixing compability issues with linux-2.4

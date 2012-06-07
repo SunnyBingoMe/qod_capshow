@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libcap_utils
+Description: all libcap_* libs
+Version: 0.7.8
+Libs: -L${libdir} -lcap_stream-07 -lcap_filter-07 -lcap_marc-07 -lcap_utils-07
+Cflags: -I${includedir}

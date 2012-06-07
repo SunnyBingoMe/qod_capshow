@@ -1,0 +1,73 @@
+.TH capdump 1 "15 Mar 2012" "BTH" "Measurement Area Manual"
+.SH NAME
+capdump \- Save capture stream to file.
+.SH SYNOPSIS
+.nf
+.B capdump [-o \fIFILE\fP] [\fIOPTIONS\fP...] \fISTREAM\fP...
+.SH DESCRIPTION
+capture \fISTREAM\fP and save to \fiFILE\fP. If no output file is specified
+stdout is used. Streams are specified in standard format, see stream-address(3).
+
+.TP
+\fB\-o\fR, \fB\-\-output\fR=\fIFILE\fR
+Save output in capfile.
+.TP
+\fB\-i\fR, \fB\-\-iface\fR=\fIIFACE\fR
+For ethernet-based streams this is the interface to listen on. Required for
+ethernet streams.
+.TP
+\fB\-p\fR, \fB\-\-packets\fR=\fIAMOUNT\fR
+Stops capture after \fIAMOUNT\fP packets has been recevied. Default is to
+capture until sender terminates or SIGINT is recevied.
+.TP
+\fB\-c\fR, \fB\-\-comment\fR=\fISTRING\fR
+Set the comment for the output stream. Default is to copy from source stream (if
+available.)
+.TP
+\fB\-t\fR, \fB\-\-timeout\fR=\fIN\fR
+Sets the timeout in milliseconds to stream_read. Lower timeout increases the
+responsiveness when using pipes but can decrease the performance slightly as the
+buffer might not be fully utilized. High timeouts will fill the buffer but may
+instead cause drops because while it drains the buffer OS starts dropping
+packets. Default is 1000ms. 
+.TP
+\fB\-b\fR, \fB\-\-bufsize\fR=\fISIZE\fR
+Use a buffer of \fISIZE\fP bytes or 0 for default. The actual default size
+depends on the source stream. Capfiles uses 4096 bytes and ethernet 175k
+bytes.
+.TP
+\fB\-\-marker\fR=\fIPORT\fR
+Split stream based on marker packet on port \fiPORT\fP. It looks for a specific
+packet in the stream and once found it stops the current output and starts
+outputting to a new destination.
+
+If \fB\-o\fR is used files will be named according to the format specified with
+\fB\-\-marker\-format\fR, if using redirection or pipes EOF will be sent and the
+capturing stops.
+.TP
+\fB\-\-marker\-format\fR=\fIFORMAT\fR
+Default format is "%f.%s.%e".
+.RS
+.IP %f
+filename without extension.
+.IP %e
+filename extension.
+.IP %s
+marker sequence number.
+.IP %x
+marker experiment ID.
+.IP %r
+marker run ID.
+.IP %k
+marker key (domain specific)
+.RE
+.TP
+\fB\-h\fR, \fB\-\-help
+Short help.
+.TP
+\fB\-\-progress\fR[=\fIFD\fR]
+Writes a progress report to \fIFD\fR (default stderr) every 60th second.
+.SH COPYRIGHT
+Copyright (C) 2011-2012 David Sveningsson <dsv@bth.se>.
+.SH "SEE ALSO"
+stream-address(3), capplay(1)

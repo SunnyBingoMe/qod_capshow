@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libcap_filter
+Description: Part of libcap_utils. Deals with packet filtering.
+Version: 0.7.8
+Libs: -L${libdir} -lcap_filter-07
+Cflags: -I${includedir}

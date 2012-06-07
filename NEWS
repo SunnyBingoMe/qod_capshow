@@ -1,0 +1,65 @@
+caputils-0.7.8
+--------------
+
+  * Quick bugfixes for PF_RING.
+
+caputils-0.7.7
+--------------
+
+  * More statistics and debugging messages.
+  * Support for AND/OR filters.
+  * Additional functions for developers
+  * support for PF_RING when doing ethernet capture.
+
+caputils-0.7.6
+--------------
+
+  * caphead_t typedef
+  * prototype for stream_from_getopt changed, abi breakage.
+  * additional functions for dealing with picotime
+  * capshow and capfilter improvements.
+
+caputils-0.7.5
+--------------
+
+  * `stream_t` is made a pointer, this will break applications but is easily
+    fixed.
+  * Additional utility functions.
+  * Changed buffering strategy.
+  * Added capmarker and capshow.
+
+caputils-0.7.4
+--------------
+
+  * Integrating libmarc into caputils.
+  * Adding function to add multiple ethernet multicast memberships to a single stream
+  * typedef struct stream stream_t
+
+caputils-0.7.3
+--------------
+
+	* Moving {,v}logmsg from libmarc here.
+	* Major API changes; breaks ABI.
+	* Fixed capdump.
+	* More man-pages.
+	* Fixing compability issues with linux-2.4
+
+caputils-0.7.2
+--------------
+
+	* Split filtering code from libcaputils to libfilter.
+	* Added two more utilities:
+	    - capdump - record a stream
+	    - capfilter - filter existing stream
+	* Added manpages.
+
+caputils-0.7.0
+--------------
+
+Based on the 0.5 branch.
+	* Backwards-compability support
+	* Numerous API-fixes, the API is *NOT* compatable with earlier versions, but there
+	  is only minor fixes required.
+	* Numerous bug-fixes, including endianess-fixes.
+	* New tools: capinfo, shows information about capfiles.
+	* Uses autotools and pkg-config

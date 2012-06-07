@@ -1,0 +1,7 @@
+Package: libcap-utils
+Section: net
+Version: 0.7.8
+Architecture: i386
+Maintainer: David Sveningsson [dsv@bth.se]
+Description: MA capture utilities
+Homepage: https://194.47.151.119/trac/
