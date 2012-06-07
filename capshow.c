@@ -31,7 +31,7 @@ static const char* iface = NULL;
 static struct timeval timeout = {1,0};
 static const char* program_name = NULL;
 static unsigned long int winQodoh;
-static unsigned int winShiftQodoh;
+static unsigned int winShiftQodoh = 8;
 
 void handle_sigint(int signum){
 	if ( keep_running == 0 ){

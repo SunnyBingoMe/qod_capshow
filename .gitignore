@@ -2,6 +2,7 @@
 *.so
 *.so.*
 *.lo
+*.la
 *.swp
 *.tmp
 *.tmp.*
