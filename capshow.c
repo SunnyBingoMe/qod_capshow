@@ -47,11 +47,11 @@ static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 	winQodoh = (u_int16_t)ntohs(tcp->window);
 	if(tcp->syn) {
 		fprintf(dst, "S");
-		/* set scale info here. assume if both support win scale then no error. */
-		(char*)tcphdr + 4*tcp->doff;
-		winShiftQodoh = (unsigned int)
+		/* set scale info here. assume if both support win scale then no error. by sunny */
+		winShiftQodoh = (unsigned int) *((char*)tcp + 4*tcp->doff - 1);
 	}else{
-		/* need win size scale left-shift here. */
+		/* added win size scale left-shift by sunny. */
+		winQodoh = winQodoh << winShiftQodoh;
 	}
 	if(tcp->fin) {
 		fprintf(dst, "F");
@@ -70,7 +70,7 @@ static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 	}
 	
 
-	fprintf(dst, "] WIN:%lu %s:%d ", winQodoh, inet_ntoa(ip->ip_src), (u_int16_t)ntohs(tcp->source)); /*  added WIN by sunny for qodoh */
+	fprintf(dst, "] WIN=%lu %s:%d ", winQodoh, inet_ntoa(ip->ip_src), (u_int16_t)ntohs(tcp->source)); /*  added WIN by sunny */
 	fprintf(dst, " --> %s:%d",inet_ntoa(ip->ip_dst),(u_int16_t)ntohs(tcp->dest));
 	fprintf(dst, "\n");
 }
