@@ -1,8 +1,8 @@
-#! /bin/sh
+#! /bin/bash
 
 # libtool - Provide generalized library-building support services.
 # Generated automatically by config.status (libcap_utils) 0.7.8
-# Libtool was configured on host mp:
+# Libtool was configured on host consumer:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
 #   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
@@ -56,7 +56,7 @@ pic_mode=default
 fast_install=yes
 
 # Shell to use when invoking shell scripts.
-SHELL="/bin/sh"
+SHELL="/bin/bash"
 
 # An echo program that protects backslashes.
 ECHO="printf %s\\n"
@@ -81,13 +81,13 @@ SED="/bin/sed"
 Xsed="$SED -e 1s/^X//"
 
 # A grep program that handles long lines.
-GREP="/usr/bin/grep"
+GREP="/bin/grep"
 
 # An ERE matcher.
-EGREP="/usr/bin/grep -E"
+EGREP="/bin/grep -E"
 
 # A literal string matcher.
-FGREP="/usr/bin/grep -F"
+FGREP="/bin/grep -F"
 
 # A BSD- or MS-compatible name lister.
 NM="/usr/bin/nm -B"
@@ -96,7 +96,7 @@ NM="/usr/bin/nm -B"
 LN_S="ln -s"
 
 # What is the maximum length of a command?
-max_cmd_len=98304
+max_cmd_len=1572864
 
 # Object file suffix (normally "o").
 objext=o
@@ -272,10 +272,10 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/usr/lib/gcc/i686-pc-linux-gnu/4.1.2 /usr/lib /lib "
+sys_lib_search_path_spec="/usr/lib/gcc/i686-linux-gnu/4.4.5 /usr/lib /lib /usr/lib/i686-linux-gnu "
 
 # Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/local/lib /usr/lib/mysql "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/lib/nvidia-173 /lib/i686-linux-gnu /usr/lib/i686-linux-gnu /usr/lib/alsa-lib /usr/local/lib "
 
 # Whether dlopen is supported.
 dlopen_support=unknown
@@ -10224,17 +10224,17 @@ file_list_spec=""
 hardcode_action=immediate
 
 # The directories searched by this compiler when creating a shared library.
-compiler_lib_search_dirs="/usr/lib/gcc/i686-pc-linux-gnu/4.1.2 /usr/lib/gcc/i686-pc-linux-gnu/4.1.2 /usr/lib/gcc/i686-pc-linux-gnu/4.1.2/../../.."
+compiler_lib_search_dirs="/usr/lib/gcc/i686-linux-gnu/4.4.5 /usr/lib/gcc/i686-linux-gnu/4.4.5 /usr/lib/gcc/i686-linux-gnu/4.4.5/../../../../lib /lib/../lib /usr/lib/../lib /usr/lib/gcc/i686-linux-gnu/4.4.5/../../.. /usr/lib/i686-linux-gnu"
 
 # Dependencies to place before and after the objects being linked to
 # create a shared library.
-predep_objects="/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/../../../crti.o /usr/lib/gcc/i686-pc-linux-gnu/4.1.2/crtbeginS.o"
-postdep_objects="/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/crtendS.o /usr/lib/gcc/i686-pc-linux-gnu/4.1.2/../../../crtn.o"
+predep_objects="/usr/lib/gcc/i686-linux-gnu/4.4.5/../../../../lib/crti.o /usr/lib/gcc/i686-linux-gnu/4.4.5/crtbeginS.o"
+postdep_objects="/usr/lib/gcc/i686-linux-gnu/4.4.5/crtendS.o /usr/lib/gcc/i686-linux-gnu/4.4.5/../../../../lib/crtn.o"
 predeps=""
 postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-L/usr/lib/gcc/i686-pc-linux-gnu/4.1.2 -L/usr/lib/gcc/i686-pc-linux-gnu/4.1.2 -L/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/../../.."
+compiler_lib_search_path="-L/usr/lib/gcc/i686-linux-gnu/4.4.5 -L/usr/lib/gcc/i686-linux-gnu/4.4.5 -L/usr/lib/gcc/i686-linux-gnu/4.4.5/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/i686-linux-gnu/4.4.5/../../.. -L/usr/lib/i686-linux-gnu"
 
 # ### END LIBTOOL TAG CONFIG: CXX

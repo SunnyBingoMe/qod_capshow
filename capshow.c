@@ -25,15 +25,38 @@
 
 static int keep_running = 1;
 static int print_content = 0;
+static int save_sunnyStat = 0;
 static int print_date = 0;
 static int max_packets = 0;
 static const char* iface = NULL;
+static const char* sunnyStatFilePrefix = NULL;
+	static char sunnyDagAndPort[] = "xxxx\0";
+	FILE *pfD00, *pfD01, *pfD10, *pfD11, *pfDxx;
+static unsigned int *pTcpTimestamp = NULL;
 static struct timeval timeout = {1,0};
 static const char* program_name = NULL;
-static unsigned long int winQodoh;
-static unsigned int winShiftQodoh = 8;
+static unsigned long int winSunny;
+static unsigned int winShiftSunny = 8;
+
+void handle_paramSunnyStat(){
+	fprintf(stdout, "got -s \n");
+	save_sunnyStat = 1;
+	sunnyStatFilePrefix = optarg;
+	pfD00 = fopen("/dev/shm/test.d00", "w");
+	pfD01 = fopen("/dev/shm/test.d01", "w");
+	pfD10 = fopen("/dev/shm/test.d10", "w");
+	pfD11 = fopen("/dev/shm/test.d11", "w");
+	if (!(pfD00 && pfD01 && pfD10 && pfD11)){
+		fprintf(stdout,"cannot open stat file(s).");
+		exit(1);
+	}
+}
 
 void handle_sigint(int signum){
+	fclose(pfD00);
+	fclose(pfD01);
+	fclose(pfD10);
+	fclose(pfD11);
 	if ( keep_running == 0 ){
 		fprintf(stderr, "\rGot SIGINT again, terminating.\n");
 		abort();
@@ -44,14 +67,14 @@ void handle_sigint(int signum){
 
 static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 	fprintf(dst, "TCP(HDR[%d]DATA[%0x]):\t [", 4*tcp->doff, ntohs(ip->ip_len) - 4*tcp->doff - 4*ip->ip_hl);
-	winQodoh = (u_int16_t)ntohs(tcp->window);
+	winSunny = (u_int16_t)ntohs(tcp->window);
 	if(tcp->syn) {
 		fprintf(dst, "S");
 		/* set scale info here. assume if both support win scale then no error. by sunny */
-		winShiftQodoh = (unsigned int) *((char*)tcp + 4*tcp->doff - 1);
+		winShiftSunny = (unsigned int) *((char*)tcp + 4*tcp->doff - 1);
 	}else{
 		/* added win size scale left-shift by sunny. */
-		winQodoh = winQodoh << winShiftQodoh;
+		winSunny = winSunny << winShiftSunny;
 	}
 	if(tcp->fin) {
 		fprintf(dst, "F");
@@ -70,9 +93,15 @@ static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 	}
 	
 
-	fprintf(dst, "] WIN=%lu %s:%d ", winQodoh, inet_ntoa(ip->ip_src), (u_int16_t)ntohs(tcp->source)); /*  added WIN by sunny */
+	fprintf(dst, "] WIN=%lu %s:%d ", winSunny, inet_ntoa(ip->ip_src), (u_int16_t)ntohs(tcp->source)); /* added WIN by sunny */
 	fprintf(dst, " --> %s:%d",inet_ntoa(ip->ip_dst),(u_int16_t)ntohs(tcp->dest));
 	fprintf(dst, "\n");
+
+	if( save_sunnyStat == 1){
+		pTcpTimestamp = (u_int32_t *) ((char *)tcp + 24);
+		fprintf(pfDxx, "%.9u_", ntohl(*pTcpTimestamp));
+		fprintf(pfDxx, "%.5u \n", (u_int16_t)ntohs(((const struct iphdr *)ip)->id));
+	}
 }
 
 static void print_udp(FILE* dst, const struct ip* ip, const struct udphdr* udp){
@@ -139,13 +168,13 @@ static void print_eth(FILE* dst, const struct ethhdr* eth){
 	uint16_t h_proto = ntohs(eth->h_proto);
 	uint16_t vlan_tci;
 
- begin:
+	begin:
 
 	if(h_proto<0x05DC){
 		fprintf(dst, "IEEE802.3 ");
-		fprintf(dst, "  %02x:%02x:%02x:%02x:%02x:%02x -> %02x:%02x:%02x:%02x:%02x:%02x ",
-		        eth->h_source[0],eth->h_source[1],eth->h_source[2],eth->h_source[3],eth->h_source[4],eth->h_source[5],
-		        eth->h_dest[0],  eth->h_dest[1],  eth->h_dest[2],  eth->h_dest[3],  eth->h_dest[4],  eth->h_dest[5]);
+		fprintf(dst, " %02x:%02x:%02x:%02x:%02x:%02x -> %02x:%02x:%02x:%02x:%02x:%02x ",
+			eth->h_source[0],eth->h_source[1],eth->h_source[2],eth->h_source[3],eth->h_source[4],eth->h_source[5],
+			eth->h_dest[0], eth->h_dest[1], eth->h_dest[2], eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
 		print_ieee8023(dst,(struct llc_pdu_sn*)payload);
 	} else {
 		switch ( h_proto ){
@@ -181,21 +210,22 @@ static void print_eth(FILE* dst, const struct ethhdr* eth){
 			break;
 
 		default:
-			fprintf(dst, "Unknown ethernet protocol (0x%04x),  ", h_proto);
+			fprintf(dst, "Unknown ethernet protocol (0x%04x), ", h_proto);
 			fprintf(dst, " %02x:%02x:%02x:%02x:%02x:%02x -> %02x:%02x:%02x:%02x:%02x:%02x \n",
-			        eth->h_source[0],eth->h_source[1],eth->h_source[2],eth->h_source[3],eth->h_source[4],eth->h_source[5],
-			        eth->h_dest[0],  eth->h_dest[1],  eth->h_dest[2],  eth->h_dest[3],  eth->h_dest[4],  eth->h_dest[5]);
+				eth->h_source[0],eth->h_source[1],eth->h_source[2],eth->h_source[3],eth->h_source[4],eth->h_source[5],
+				eth->h_dest[0], eth->h_dest[1], eth->h_dest[2], eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
 			break;
 		}
 	}
 }
 
 static struct option long_options[]= {
-	{"content",  no_argument,       0, 'c'},
+	{"content", no_argument,        0, 'c'},
 	{"packets",  required_argument, 0, 'p'},
 	{"iface",    required_argument, 0, 'i'},
 	{"timeout",  required_argument, 0, 't'},
 	{"calender", no_argument,       0, 'd'},
+	{"sunnyStat",no_argument   , 0, 's'},
 	{"help",     no_argument,       0, 'h'},
 	{0, 0, 0, 0} /* sentinel */
 };
@@ -211,18 +241,19 @@ static void show_usage(void){
 	       "  -p, --packets=N      Stop after N packets.\n"
 	       "  -t, --timeout=N      Wait for N ms while buffer fills [default: 1000ms].\n"
 	       "  -d, --calender       Show timestamps in human-readable format.\n"
+	       "  -s, --sunnyStat      Save stat info to file. (qodoh)\n"
 	       "  -h, --help           This text.\n\n");
 	filter_from_argv_usage();
 }
 
 int main(int argc, char **argv){
-  /* extract program name from path. e.g. /path/to/MArCd -> MArCd */
-  const char* separator = strrchr(argv[0], '/');
-  if ( separator ){
-    program_name = separator + 1;
-  } else {
-    program_name = argv[0];
-  }
+	/* extract program name from path. e.g. /path/to/MArCd -> MArCd */
+	const char* separator = strrchr(argv[0], '/');
+	if ( separator ){
+		program_name = separator + 1;
+	} else {
+		program_name = argv[0];
+	}
 
 	struct filter filter;
 	if ( filter_from_argv(&argc, argv, &filter) != 0 ){
@@ -234,11 +265,12 @@ int main(int argc, char **argv){
 	int op, option_index = -1;
 	while ( (op = getopt_long(argc, argv, "hcdi:p:t:", long_options, &option_index)) != -1 ){
 		switch (op){
-		case 0:   /* long opt */
+		case 0: /* long opt */
 		case '?': /* unknown opt */
 			break;
 
 		case 'd':
+			fprintf(stdout, "got -d \n");
 			print_date = 1;
 			break;
 
@@ -249,13 +281,18 @@ int main(int argc, char **argv){
 		case 't':
 			{
 				int tmp = atoi(optarg);
-				timeout.tv_sec  = tmp / 1000;
+				timeout.tv_sec = tmp / 1000;
 				timeout.tv_usec = tmp % 1000 * 1000;
 			}
 			break;
 
 		case 'c':
 			print_content = 1;
+			break;
+
+		case 's':
+			fprintf(stdout,"-s opt arg: %s",optarg);
+			handle_paramSunnyStat();
 			break;
 
 		case 'i':
@@ -270,6 +307,7 @@ int main(int argc, char **argv){
 			printf ("?? getopt returned character code 0%o ??\n", op);
 		}
 	}
+	handle_paramSunnyStat(); /* problem1: parm handle */
 
 	int ret;
 
@@ -300,6 +338,7 @@ int main(int argc, char **argv){
 
 		time_t time = (time_t)cp->ts.tv_sec;
 		fprintf(stdout, "[%4"PRIu64"]:%.4s:%.8s:", stat->matched, cp->nic, cp->mampid);
+		sprintf(sunnyDagAndPort, "%.4s", cp->nic);
 		if( print_date == 0 ) {
 			fprintf(stdout, "%u.", cp->ts.tv_sec);
 		} else {
@@ -310,12 +349,25 @@ int main(int argc, char **argv){
 		}
 
 		fprintf(stdout, "%012"PRId64":LINK(%4d):CAPLEN(%4d):", cp->ts.tv_psec, cp->len, cp->caplen);
+		if( save_sunnyStat == 1){
+			if (strncmp("d00", sunnyDagAndPort, 3) == 0){
+				pfDxx = pfD00;
+			}else if(strncmp("d01", sunnyDagAndPort, 3) == 0){
+				pfDxx = pfD01;
+			}else if(strncmp("d10", sunnyDagAndPort, 3) == 0){
+				pfDxx = pfD10;
+			}else if(strncmp("d11", sunnyDagAndPort, 3) == 0){
+				pfDxx = pfD11;
+			}
+			fprintf(pfDxx, "%u.", cp->ts.tv_sec);
+			fprintf(pfDxx, "%012"PRId64" ", cp->ts.tv_psec);
+		}
 		/* Test for libcap_utils marker packet */
 		struct marker mark;
 		int marker_port;
 		if ( (marker_port=is_marker(cp, &mark, 0)) != 0 ){
 			fprintf(stdout, "Marker [e=%d, r=%d, k=%d, s=%d, port=%d]\n",
-			        mark.exp_id, mark.run_id, mark.key_id, mark.seq_num, marker_port);
+				mark.exp_id, mark.run_id, mark.key_id, mark.seq_num, marker_port);
 		} else {
 			print_eth(stdout, cp->ethhdr);
 		}
@@ -341,6 +393,11 @@ int main(int argc, char **argv){
 	/* Release resources */
 	stream_close(stream);
 	filter_close(&filter);
+
+	fclose(pfD00);
+	fclose(pfD01);
+	fclose(pfD10);
+	fclose(pfD11);
 
 	return 0;
 }

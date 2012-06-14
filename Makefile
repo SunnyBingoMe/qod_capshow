@@ -74,7 +74,7 @@ TESTS = tests/disabled$(EXEEXT)
 check_PROGRAMS = $(am__EXEEXT_6)
 #am__append_12 = stream_pfring.c
 am__append_13 = stream_ethernet.c
-am__append_14 = be64toh.c be64toh.h
+#am__append_14 = be64toh.c be64toh.h
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(nobase_include_HEADERS) \
 	$(notrans_dist_man_MANS) $(srcdir)/Makefile.am \
@@ -167,7 +167,7 @@ libcap_utils_07_la_DEPENDENCIES = libcap_stream-07.la \
 	libcap_filter-07.la libcap_marc-07.la
 am__libcap_utils_07_la_SOURCES_DIST = caputils_int.h address.c error.c \
 	log.c marker.c utils.c picotime.c be64toh.c be64toh.h
-am__objects_3 = be64toh.lo
+#am__objects_3 = be64toh.lo
 am_libcap_utils_07_la_OBJECTS = address.lo error.lo log.lo marker.lo \
 	utils.lo picotime.lo $(am__objects_3)
 libcap_utils_07_la_OBJECTS = $(am_libcap_utils_07_la_OBJECTS)
@@ -355,7 +355,7 @@ ARCH = i386
 AUTOCONF = ${SHELL} /usr/local/src/dpmi7/qod_libcap_utils-0.7.8/build-aux/missing --run autoconf
 AUTOHEADER = ${SHELL} /usr/local/src/dpmi7/qod_libcap_utils-0.7.8/build-aux/missing --run autoheader
 AUTOMAKE = ${SHELL} /usr/local/src/dpmi7/qod_libcap_utils-0.7.8/build-aux/missing --run automake-1.11
-AWK = gawk
+AWK = mawk
 CC = gcc -std=gnu99
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
@@ -377,10 +377,10 @@ DUMPBIN =
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
-EGREP = /usr/bin/grep -E
+EGREP = /bin/grep -E
 EXEEXT = 
-FGREP = /usr/bin/grep -F
-GREP = /usr/bin/grep
+FGREP = /bin/grep -F
+GREP = /bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
@@ -418,7 +418,7 @@ PFRING_LIBS =
 RANLIB = ranlib
 SED = /bin/sed
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = strip
 VERSION = 0.7.8
 VERSION_MAJOR = 0
