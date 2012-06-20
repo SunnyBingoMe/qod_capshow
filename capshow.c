@@ -30,7 +30,9 @@ static int print_date = 0;
 static int max_packets = 0;
 static const char* iface = NULL;
 static const char* sunnyStatFilePrefix = NULL;
-	static char sunnyDagAndPort[] = "xxxx\0";
+	static char sunnyDagAndPort[] = "xxx\0";
+	static char timeStamp_sec[] = "1340097905\0";
+	static char timeStamp_psec[] = "902924299250\0";
 	FILE *pfD00, *pfD01, *pfD10, *pfD11, *pfDxx;
 static unsigned int *pTcpTimestamp = NULL;
 static struct timeval timeout = {1,0};
@@ -42,10 +44,10 @@ void handle_paramSunnyStat(){
 	fprintf(stdout, "got -s \n");
 	save_sunnyStat = 1;
 	sunnyStatFilePrefix = optarg;
-	pfD00 = fopen("/dev/shm/test.d00", "w");
-	pfD01 = fopen("/dev/shm/test.d01", "w");
-	pfD10 = fopen("/dev/shm/test.d10", "w");
-	pfD11 = fopen("/dev/shm/test.d11", "w");
+	pfD00 = fopen("/dev/shm/qodoh.d00", "w");
+	pfD01 = fopen("/dev/shm/qodoh.d01", "w");
+	pfD10 = fopen("/dev/shm/qodoh.d10", "w");
+	pfD11 = fopen("/dev/shm/qodoh.d11", "w");
 	if (!(pfD00 && pfD01 && pfD10 && pfD11)){
 		fprintf(stdout,"cannot open stat file(s).");
 		exit(1);
@@ -53,10 +55,10 @@ void handle_paramSunnyStat(){
 }
 
 void handle_sigint(int signum){
-	fclose(pfD00);
-	fclose(pfD01);
-	fclose(pfD10);
-	fclose(pfD11);
+	/*fclose(pfD00);*/
+	/*fclose(pfD01);*/
+	/*fclose(pfD10);*/
+	/*fclose(pfD11);*/
 	if ( keep_running == 0 ){
 		fprintf(stderr, "\rGot SIGINT again, terminating.\n");
 		abort();
@@ -72,9 +74,11 @@ static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 		fprintf(dst, "S");
 		/* set scale info here. assume if both support win scale then no error. by sunny */
 		winShiftSunny = (unsigned int) *((char*)tcp + 4*tcp->doff - 1);
+		pTcpTimestamp = (u_int32_t *) ((char *)tcp + 28);
 	}else{
 		/* added win size scale left-shift by sunny. */
 		winSunny = winSunny << winShiftSunny;
+		pTcpTimestamp = (u_int32_t *) ((char *)tcp + 24);
 	}
 	if(tcp->fin) {
 		fprintf(dst, "F");
@@ -97,8 +101,9 @@ static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 	fprintf(dst, " --> %s:%d",inet_ntoa(ip->ip_dst),(u_int16_t)ntohs(tcp->dest));
 	fprintf(dst, "\n");
 
-	if( save_sunnyStat == 1){
-		pTcpTimestamp = (u_int32_t *) ((char *)tcp + 24);
+	if( (save_sunnyStat == 1) && !(tcp->rst) && !(tcp->syn) ){
+		fprintf(pfDxx, "%s.", timeStamp_sec);
+		fprintf(pfDxx, "%s", timeStamp_psec);
 		fprintf(pfDxx, "%.9u_", ntohl(*pTcpTimestamp));
 		fprintf(pfDxx, "%.5u \n", (u_int16_t)ntohs(((const struct iphdr *)ip)->id));
 	}
@@ -359,8 +364,8 @@ int main(int argc, char **argv){
 			}else if(strncmp("d11", sunnyDagAndPort, 3) == 0){
 				pfDxx = pfD11;
 			}
-			fprintf(pfDxx, "%u.", cp->ts.tv_sec);
-			fprintf(pfDxx, "%012"PRId64" ", cp->ts.tv_psec);
+			sprintf(timeStamp_sec, "%u", cp->ts.tv_sec);
+			sprintf(timeStamp_psec, "%012"PRId64" ", cp->ts.tv_psec);
 		}
 		/* Test for libcap_utils marker packet */
 		struct marker mark;
