@@ -32,6 +32,7 @@ static const char* iface = NULL;
 static const char* sunnyStatFilePrefix = NULL;
 	static char sunnyDagAndPort[] = "xxx\0";
 	static char timeStamp_sec[] = "1340097905\0";
+	static unsigned int ipId = 65536;
 	static char timeStamp_psec[] = "902924299250\0";
 	FILE *pfD00, *pfD01, *pfD10, *pfD11, *pfDxx;
 static unsigned int *pTcpTimestamp = NULL;
@@ -101,11 +102,13 @@ static void print_tcp(FILE* dst, const struct ip* ip, const struct tcphdr* tcp){
 	fprintf(dst, " --> %s:%d",inet_ntoa(ip->ip_dst),(u_int16_t)ntohs(tcp->dest));
 	fprintf(dst, "\n");
 
-	if( (save_sunnyStat == 1) && !(tcp->rst) && !(tcp->syn) ){
+	ipId = (u_int16_t)ntohs(((const struct iphdr *)ip)->id);
+	if( (save_sunnyStat == 1) && !(tcp->rst) && !(ipId == 0 && (u_int16_t)ntohs(((const struct iphdr *)ip)->tot_len) == 52) ){ /* this condition is hot fix, i do not know the exact reason why there are 'data' pkts without tcp payload */
 		fprintf(pfDxx, "%s.", timeStamp_sec);
 		fprintf(pfDxx, "%s", timeStamp_psec);
 		fprintf(pfDxx, "%.9u_", ntohl(*pTcpTimestamp));
-		fprintf(pfDxx, "%.5u \n", (u_int16_t)ntohs(((const struct iphdr *)ip)->id));
+		fprintf(pfDxx, "%.5u_", ipId);
+		fprintf(pfDxx, "%.10lu \n", winSunny);
 	}
 }
 
